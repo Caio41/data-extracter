@@ -1,5 +1,6 @@
 from io import BytesIO, StringIO
 import os
+from pathlib import Path
 from tempfile import NamedTemporaryFile
 from fastapi import APIRouter, File, UploadFile
 from fastapi.responses import StreamingResponse
@@ -34,8 +35,9 @@ def teste(arquivo: UploadFile = File(...)):
 
 @router.post("/img-to-doc")
 async def img_to_doc(arquivo: UploadFile = File(...)):
+    """Cria documento Word com texto da imagem"""
     file_content = await arquivo.read()
-    result = reader.readtext(file_content, detail=0)
+    result = reader.readtext(file_content, paragraph=True, detail=0)
 
     doc = Document()
     for text in result:
@@ -45,10 +47,13 @@ async def img_to_doc(arquivo: UploadFile = File(...)):
     doc.save(output)
     output.seek(0)
 
+    # pega nome do arquivo sem extensão
+    nome_doc = Path(arquivo.filename).stem
+
     return StreamingResponse(
         output,
         media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-        headers={"Content-Disposition": "attachment; filename=teste.docx"},
+        headers={"Content-Disposition": f"attachment; filename={nome_doc}.docx"},
     )
 
 
