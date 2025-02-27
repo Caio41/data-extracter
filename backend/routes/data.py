@@ -57,6 +57,23 @@ async def img_to_doc(arquivo: UploadFile = File(...)):
     )
 
 
+@router.post("/img-to-txt")
+async def img_to_txt(arquivo: UploadFile = File(...)):
+    file_content = await arquivo.read()
+    result = reader.readtext(file_content, paragraph=True, detail=0)
+
+    nome_doc = Path(arquivo.filename).stem
+
+    # considerar separar os paragrafos com duas linhas de distancia (so ta com uma por enquanto)
+    output = StringIO("\n".join(result))
+
+    return StreamingResponse(
+        output,
+        media_type="text/plain",
+        headers={"Content-Disposition": f"attachment; filename={nome_doc}.txt"},
+    )
+
+
 # usa ocrmypdf e fitz
 @router.post("/easyocr-pdf")
 async def easyocr_pdf(arquivo: UploadFile = File(...)):
