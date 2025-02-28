@@ -13,6 +13,7 @@ import cv2
 import ocrmypdf
 import csv
 from docx import Document
+from services.imagem_utils import extrair_tabela
 
 
 router = APIRouter()
@@ -103,45 +104,10 @@ async def tesseract_teste(arquivo: UploadFile = File(...)):
 
 @router.post("/tesseract/tabela")
 async def tesseract_extrair_tabela(arquivo: UploadFile = File(...)):
-    file_content = await arquivo.read()
-
-    doc = fitz.open(stream=file_content, filetype="pdf")
-
-    texto_extraido = ""
-    for page in doc:
-        pix = page.get_pixmap()
-        img = Image.open(BytesIO(pix.tobytes("png")))
-        # img = preprocessar_imagem(img)
-        text = pytesseract.image_to_string(img, lang="por")
-        texto_extraido += text + "\n"
-
-    rows = estimar_linhas(texto_extraido)
-
-    # Convert string into a list of lines
-    data = texto_extraido.strip().split("\n")
-
-    # Remove empty elements
-    data = list(filter(None, data))
-
-    # Split data into chunks of 'rows'
-    data = split_list(data, rows)
-
-    # Transpose data (convert rows to columns)
-    data = list(map(list, zip(*data)))
-
-    # Save to CSV in-memory
-    output = StringIO()
-    wr = csv.writer(output, delimiter=";")
-    for row in data:
-        wr.writerow(row)
-
-    output.seek(0)
-    return StreamingResponse(
-        output,
-        media_type="text/csv",
-        headers={"Content-Disposition": "attachment; filename=table.csv"},
-    )
-
+    file_content = await arquivo.read()  
+    np_array = np.frombuffer(file_content, np.uint8)  # Converte bytes para NumPy array
+    imagem = cv2.imdecode(np_array, cv2.IMREAD_COLOR) # faz o decode da umagem usando cv2
+    imagem_final = extrair_tabela(imagem)
 
 def split_list(l, n):
     splitted = []
