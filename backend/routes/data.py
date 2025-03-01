@@ -1,4 +1,4 @@
-from io import BytesIO, StringIO
+from io import BytesIO
 import os
 from pathlib import Path
 from tempfile import NamedTemporaryFile
@@ -11,9 +11,7 @@ import fitz
 from PIL import Image
 import cv2
 import ocrmypdf
-import csv
 from docx import Document
-from services.imagem_utils import extrair_tabela
 
 
 router = APIRouter()
@@ -100,33 +98,6 @@ async def tesseract_teste(arquivo: UploadFile = File(...)):
 
     print(texto_extraido)
     return texto_extraido
-
-
-@router.post("/tesseract/tabela")
-async def tesseract_extrair_tabela(arquivo: UploadFile = File(...)):
-    file_content = await arquivo.read()  
-    np_array = np.frombuffer(file_content, np.uint8)  # Converte bytes para NumPy array
-    imagem = cv2.imdecode(np_array, cv2.IMREAD_COLOR) # faz o decode da umagem usando cv2
-    csv = extrair_tabela(imagem)
-
-    return StreamingResponse(
-        csv,
-        media_type="text/csv",
-        headers={"Content-Disposition": "attachment; filename=output.csv"},
-    )
-
-def split_list(l, n):
-    splitted = []
-
-    for i in range(0, len(l), n):
-        splitted.append(l[i : i + n])
-
-    return splitted
-
-
-def estimar_linhas(input_text: str):
-    lines = len(input_text.strip().split("\n"))
-    return lines
 
 
 def preprocessar_imagem(img):
