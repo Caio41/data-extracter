@@ -1,4 +1,4 @@
-from io import BytesIO, StringIO
+from io import BytesIO
 import os
 from tempfile import NamedTemporaryFile
 from fastapi import APIRouter, File, UploadFile
@@ -10,7 +10,11 @@ import fitz
 from PIL import Image
 import cv2
 import ocrmypdf
+<<<<<<< HEAD:backend/routes/data.py
+from docx import Document
+=======
 import csv
+>>>>>>> main:backend/routes/experimentos.py
 
 
 router = APIRouter()
@@ -73,62 +77,6 @@ async def tesseract_teste(arquivo: UploadFile = File(...)):
 
     print(texto_extraido)
     return texto_extraido
-
-
-@router.post("/tesseract/tabela")
-async def tesseract_extrair_tabela(arquivo: UploadFile = File(...)):
-    file_content = await arquivo.read()
-
-    doc = fitz.open(stream=file_content, filetype="pdf")
-
-    texto_extraido = ""
-    for page in doc:
-        pix = page.get_pixmap()
-        img = Image.open(BytesIO(pix.tobytes("png")))
-        # img = preprocessar_imagem(img)
-        text = pytesseract.image_to_string(img, lang="por")
-        texto_extraido += text + "\n"
-
-    rows = estimar_linhas(texto_extraido)
-
-    # Convert string into a list of lines
-    data = texto_extraido.strip().split("\n")
-
-    # Remove empty elements
-    data = list(filter(None, data))
-
-    # Split data into chunks of 'rows'
-    data = split_list(data, rows)
-
-    # Transpose data (convert rows to columns)
-    data = list(map(list, zip(*data)))
-
-    # Save to CSV in-memory
-    output = StringIO()
-    wr = csv.writer(output, delimiter=";")
-    for row in data:
-        wr.writerow(row)
-
-    output.seek(0)
-    return StreamingResponse(
-        output,
-        media_type="text/csv",
-        headers={"Content-Disposition": "attachment; filename=table.csv"},
-    )
-
-
-def split_list(l, n):
-    splitted = []
-
-    for i in range(0, len(l), n):
-        splitted.append(l[i : i + n])
-
-    return splitted
-
-
-def estimar_linhas(input_text: str):
-    lines = len(input_text.strip().split("\n"))
-    return lines
 
 
 def preprocessar_imagem(img):
