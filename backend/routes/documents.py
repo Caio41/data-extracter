@@ -6,6 +6,8 @@ from docx import Document
 import pytesseract
 from PIL import Image
 
+from services.text_correction import corrigir_texto
+
 
 router = APIRouter()
 
@@ -54,3 +56,36 @@ async def img_to_txt(arquivo: UploadFile = File(...)):
         headers={"Content-Disposition": f"attachment; filename={nome_doc}.txt"},
     )
 
+
+@router.post('/testeeeee')
+async def teste(arquivo: UploadFile = File(...)):
+    file_content = await arquivo.read()
+
+    img = Image.open(BytesIO(file_content))
+    dados = pytesseract.image_to_data(img, lang='por', output_type='data.frame')
+
+    dados = dados[dados.conf != -1]
+    linhas = dados.groupby('block_num')['text'].apply(list)
+    #frase = ' '.join(linhas)
+    confiancas = dados.groupby(['block_num'])['conf'].mean()
+
+    # Pega o index dos que tem confiança abaixo de 80
+    indexes = confiancas[confiancas < 80].index.tolist()
+
+
+    for index in indexes:
+        txt_impreciso = linhas[index]
+        txt_impreciso = ' '.join(txt_impreciso)
+        print(txt_impreciso)
+
+    # passos que tem que ser feitos:
+    # 1. separa o texto em blocos 
+    # 2. calcula as confiancas por bloco
+    # 3. se confianca < numero, chamar função que corrige texto impreciso
+    # 4. remontar texto original pra passar pro doc
+
+
+  #  print(dados.to_string())
+   # print(linhas)
+
+    #print(conf)
