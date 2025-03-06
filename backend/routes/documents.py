@@ -3,6 +3,7 @@ from pathlib import Path
 from fastapi import APIRouter, File, UploadFile
 from fastapi.responses import StreamingResponse
 from docx import Document
+from pdf2image import convert_from_bytes
 import pytesseract
 from PIL import Image
 
@@ -57,35 +58,52 @@ async def img_to_txt(arquivo: UploadFile = File(...)):
     )
 
 
-@router.post('/testeeeee')
-async def teste(arquivo: UploadFile = File(...)):
+@router.post("/img-to-doc-pdf")
+async def img_to_doc_pdf(arquivo: UploadFile = File(...)):
+    """Cria documento Word com texto da imagem"""
+    file_content = await arquivo.read()
+    
+    pages = convert_from_bytes(file_content, 300)
+    txt_completo = ''
+    for page in pages:
+        txt = pytesseract.image_to_string(page, lang='por')
+        txt_completo += txt + '\n'
+
+    doc = Document()
+    doc.add_paragraph(txt_completo)
+
+    output = BytesIO()
+    doc.save(output)
+    output.seek(0)
+
+    nome_doc = Path(arquivo.filename).stem
+
+    return StreamingResponse(
+        output,
+        media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        headers={"Content-Disposition": f"attachment; filename={nome_doc}.docx"},
+    )
+
+
+
+
+@router.post("/img-to-txt-pdf")
+async def img_to_txt_pdf(arquivo: UploadFile = File(...)):
+    """Cria documento txt com texto da imagem"""
     file_content = await arquivo.read()
 
-    img = Image.open(BytesIO(file_content))
-    dados = pytesseract.image_to_data(img, lang='por', output_type='data.frame')
+    pages = convert_from_bytes(file_content, 300)
+    txt_completo = ''
+    for page in pages:
+        txt = pytesseract.image_to_string(page, lang='por')
+        txt_completo += txt + '\n'
 
-    dados = dados[dados.conf != -1]
-    linhas = dados.groupby('block_num')['text'].apply(list)
-    #frase = ' '.join(linhas)
-    confiancas = dados.groupby(['block_num'])['conf'].mean()
+    nome_doc = Path(arquivo.filename).stem
 
-    # Pega o index dos que tem confiança abaixo de 80
-    indexes = confiancas[confiancas < 80].index.tolist()
+    output = StringIO(txt_completo)
 
-
-    for index in indexes:
-        txt_impreciso = linhas[index]
-        txt_impreciso = ' '.join(txt_impreciso)
-        print(txt_impreciso)
-
-    # passos que tem que ser feitos:
-    # 1. separa o texto em blocos 
-    # 2. calcula as confiancas por bloco
-    # 3. se confianca < numero, chamar função que corrige texto impreciso
-    # 4. remontar texto original pra passar pro doc
-
-
-  #  print(dados.to_string())
-   # print(linhas)
-
-    #print(conf)
+    return StreamingResponse(
+        output,
+        media_type="text/plain",
+        headers={"Content-Disposition": f"attachment; filename={nome_doc}.txt"},
+    )
