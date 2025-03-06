@@ -3,6 +3,9 @@ from pathlib import Path
 from fastapi import APIRouter, File, UploadFile
 from fastapi.responses import StreamingResponse
 from docx import Document
+import fitz
+import ocrmypdf
+from ocrmypdf.exceptions import TaggedPDFError
 from pdf2image import convert_from_bytes
 import pytesseract
 from PIL import Image
@@ -58,6 +61,10 @@ async def img_to_txt(arquivo: UploadFile = File(...)):
     )
 
 
+
+# pra rodar essas de pdf precisa do poppler baixado por causa do pdf2image
+# download windows: https://github.com/oschwartz10612/poppler-windows/releases/tag/v24.08.0-0
+
 @router.post("/img-to-doc-pdf")
 async def img_to_doc_pdf(arquivo: UploadFile = File(...)):
     """Cria documento Word com texto da imagem"""
@@ -91,12 +98,29 @@ async def img_to_doc_pdf(arquivo: UploadFile = File(...)):
 async def img_to_txt_pdf(arquivo: UploadFile = File(...)):
     """Cria documento txt com texto da imagem"""
     file_content = await arquivo.read()
+    # Não vai funcionar bem para PDFs híbridos (com texto e imagens)
 
-    pages = convert_from_bytes(file_content, 300)
+    # Se o texto não é selecionável (PDF de Imagem)
+    try:
+        input_pdf = BytesIO(file_content)  
+        output = BytesIO()
+
+        # É possível usar o argumento skip_text=True aqui pra poder pular as páginas que tem texto,
+        # mas nao funciona pros PDFs hibridos pq pode ter uma pagina que tem tanto texto quanto imagem
+        ocrmypdf.ocr(input_pdf, output, language='por') 
+
+        output.seek(0)
+
+        doc = fitz.open(stream=output, filetype='pdf')
+
+    # Se o texto é selecionavel (PDF de Texto)
+    except TaggedPDFError:
+        doc = fitz.open(stream=file_content, filetype='pdf')
+        
     txt_completo = ''
-    for page in pages:
-        txt = pytesseract.image_to_string(page, lang='por')
-        txt_completo += txt + '\n'
+    for page_num in range(doc.page_count):
+        page = doc.load_page(page_num)
+        txt_completo += page.get_text()
 
     nome_doc = Path(arquivo.filename).stem
 
