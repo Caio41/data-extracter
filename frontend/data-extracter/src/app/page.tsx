@@ -51,10 +51,8 @@ export default function Home() {
       });
 
       if (!response.ok) throw new Error("Erro ao enviar arquivo");
-      console.log(response);
 
       const contentDisposition = response.headers.get("content-disposition");
-      console.log(contentDisposition);
       let filename = `arquivo_convertido.${format}`;
 
       if (contentDisposition) {
@@ -94,7 +92,7 @@ export default function Home() {
 
         <h1 className="text-xl font-semibold text-center mb-4">Upload de arquivo</h1>
         <CardContent className="flex flex-col gap-4">
-          <input type="file" accept="image/*" onChange={handleFileChange} className="hidden" id="file-input" />
+          <input type="file" accept="image/*,application/pdf" onChange={handleFileChange} className="hidden" id="file-input" />
           <label htmlFor="file-input" className="cursor-pointer flex flex-col items-center border border-dashed border-gray-400 p-6 rounded-lg bg-gray-50 hover:bg-gray-100 transition">
             <Upload className="w-8 h-8 text-gray-600" />
             <span className="text-gray-700 mt-2">{file ? file.name : "Selecione ou arraste uma imagem"}</span>
