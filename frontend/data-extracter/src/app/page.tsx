@@ -13,9 +13,19 @@ export default function Home() {
   const [downloadFileName, setDownloadFileName] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  const acceptedFormats = ["image/png", "image/jpeg", "application/pdf"];
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setFile(e.target.files[0]);
+    const selectedFile = e.target.files ? e.target.files[0] : null;
+
+    if (selectedFile) {
+      if (!acceptedFormats.includes(selectedFile.type)) {
+        setErrorMessage("Formato de arquivo não aceito. Selecione uma imagem ou PDF.");
+        setFile(null);
+        return;
+      }
+
+      setFile(selectedFile);
       setDownloadFile(null);
       setDownloadFileName("");
     }
@@ -95,7 +105,7 @@ export default function Home() {
           <input type="file" accept="image/*,application/pdf" onChange={handleFileChange} className="hidden" id="file-input" />
           <label htmlFor="file-input" className="cursor-pointer flex flex-col items-center border border-dashed border-gray-400 p-6 rounded-lg bg-gray-50 hover:bg-gray-100 transition">
             <Upload className="w-8 h-8 text-gray-600" />
-            <span className="text-gray-700 mt-2">{file ? file.name : "Selecione ou arraste uma imagem"}</span>
+            <span className="text-gray-700 mt-2">{file ? file.name : "Selecione um arquivo"}</span>
           </label>
           <h2 className="text-x font-semibold text-center mb-1">Selecione o formato de saída desejado</h2>
           <div className="flex gap-2 justify-center">
