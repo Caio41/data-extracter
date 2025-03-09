@@ -10,11 +10,8 @@ import fitz
 from PIL import Image
 import cv2
 import ocrmypdf
-<<<<<<< HEAD:backend/routes/data.py
 from docx import Document
-=======
 import csv
->>>>>>> main:backend/routes/experimentos.py
 
 
 router = APIRouter()
