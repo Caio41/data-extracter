@@ -54,7 +54,7 @@ export default function Home() {
 
     try {
       const apiBaseUrl = process.env.NEXT_PUBLIC_BACKEND_URL;
-      const route = `/documents/${format === "txt" ? "img-to-txt" : "img-to-docx"}`;
+      const route = `/documents/${format === "txt" ? "img-to-txt" : "img-to-doc"}`;
       const response = await fetch(apiBaseUrl + route, {
         method: "POST",
         body: formData,
