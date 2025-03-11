@@ -7,7 +7,7 @@ API para extração de texto e tabelas a partir de imagens
 ## Features
 - Extrair texto de uma imagem e exportar para docx
 - Extrair texto de uma imagem e exportar para txt
-- Extrair tabelas de uma imagem e exportar para Excel
+- Extrair tabelas de uma imagem e exportar para csv
 - Suporte para imagens do tipo: png, jpg, tiff e PDF com imagens.
 
 
@@ -28,12 +28,14 @@ poetry shell
 ## Uso
 Para rodar o frontend, use:
 ```
+cd frontend/data-extracter
 npm install
 npm run dev
 ```
 
 Para rodar o backend, use:
 ```
+cd backend
 uvicorn main:app
 ```
 
