@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from routes import tabelas, documents, experimentos
+from routes import tabelas, documents
 
 app = FastAPI()
 
@@ -15,5 +15,4 @@ app.add_middleware(
 )
 
 app.include_router(tabelas.router, prefix="/tabelas", tags=["tabelas"])
-app.include_router(experimentos.router, prefix="/experimentos", tags=["experimentos"])
 app.include_router(documents.router, prefix="/documents", tags=["documents"])

@@ -7,7 +7,8 @@ from services.imagem_utils import extrair_tabela
 router = APIRouter()
 
 @router.post("/tesseract/")
-async def tesseract_extrair_tabela(arquivo: UploadFile = File(...)):
+async def tesseract_extrair_tabela(arquivo: UploadFile = File(...)) -> StreamingResponse:
+    """Extrai tabela da imagem utilizando tesseract"""
     file_content = await arquivo.read()  
     np_array = np.frombuffer(file_content, np.uint8)  # Converte bytes para NumPy array
     imagem = cv2.imdecode(np_array, cv2.IMREAD_COLOR) # faz o decode da umagem usando cv2

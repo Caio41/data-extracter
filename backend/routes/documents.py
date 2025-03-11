@@ -15,7 +15,7 @@ router = APIRouter()
 
 
 @router.post("/img-to-doc")
-async def img_to_doc(arquivo: UploadFile = File(...)):
+async def img_to_doc(arquivo: UploadFile = File(...)) -> StreamingResponse:
     """Cria documento Word com texto da imagem"""
     file_content = await arquivo.read()
     
@@ -45,7 +45,7 @@ async def img_to_doc(arquivo: UploadFile = File(...)):
 
 
 @router.post("/img-to-txt")
-async def img_to_txt(arquivo: UploadFile = File(...)):
+async def img_to_txt(arquivo: UploadFile = File(...)) -> StreamingResponse:
     """Cria documento txt com texto da imagem"""
     file_content = await arquivo.read()
 
