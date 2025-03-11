@@ -4,6 +4,7 @@ import cv2
 import numpy as np
 import subprocess
 import tempfile
+from fastapi import HTTPException, status
 
 def converte_para_grayscale(imagem):
     return cv2.cvtColor(imagem, cv2.COLOR_BGR2GRAY)
@@ -191,7 +192,7 @@ def extrair_tabela(imagem, save_dir='./imagens_processadas/' ):
     bordas_retangulares, imagem_com_retangulos = filtra_bordas_retangulares(bordas, imagem)
     maior_borda, imagem_com_maior_borda = get_maior_borda(bordas_retangulares, imagem)
     if maior_borda is None:
-        return None
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Não foi identificada uma tabela na imagem")
     imagem_transformada = transforma_perspectiva(imagem, maior_borda)
     imagem_tabela = add_padding(imagem_transformada)
     imagem_tabela_grayscale = converte_para_grayscale(imagem_tabela)
@@ -208,6 +209,8 @@ def extrair_tabela(imagem, save_dir='./imagens_processadas/' ):
     segmentos, imagem_com_segmentos = segmenta_imagem(bordas_palavras, imagem_tabela)
     altura_media = get_altura_media_segmentos(segmentos)
     segmentos_ordenados = ordena_segmentos_y(segmentos)
+    if len(segmentos_ordenados) == 0:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Não foi identificada uma tabela na imagem")
     linhas = organiza_segmentos_em_linhas(segmentos_ordenados, altura_media)
     linhas_ordenadas = ordena_linhas_x(linhas)
     tabela = get_tabela(imagem_tabela, linhas_ordenadas)
