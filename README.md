@@ -1,8 +1,5 @@
-# Textracter
+# Data Extracter
 API para extração de texto e tabelas a partir de imagens
-
-## Demonstração
-
 
 ## Features
 - Extrair texto de uma imagem e exportar para docx
@@ -23,7 +20,7 @@ poetry install
 poetry shell
 ```
 
-
+Além disso, também é necessário instalar as ferramentas [Tesseract](https://tesseract-ocr.github.io/tessdoc/Downloads) e [GhostScript](https://ghostscript.com/releases/gsdnld.html)
 
 ## Uso
 Para rodar o frontend, use:
@@ -45,4 +42,4 @@ uvicorn main:app
 - Python
 - FastAPI
 - Tesseract
-- fitz
+- pymupdf
