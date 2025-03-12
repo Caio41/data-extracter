@@ -1,14 +1,13 @@
 from io import BytesIO, StringIO
 from pathlib import Path
-from fastapi import APIRouter, File, UploadFile
+from fastapi import APIRouter, File, HTTPException, UploadFile
 from fastapi.responses import StreamingResponse
 from docx import Document
 import pytesseract
 from PIL import Image
 
 from services.pdf_utils import ocr_pdf
-
-# from services.text_correction import corrigir_texto
+from services.text_correction import corrigir_texto
 
 
 router = APIRouter()
@@ -26,9 +25,15 @@ async def img_to_doc(arquivo: UploadFile = File(...)) -> StreamingResponse:
         img = Image.open(BytesIO(file_content))
         txt_extraido = pytesseract.image_to_string(img, lang='por')
 
+
+    if not txt_extraido:
+        raise HTTPException(status_code=404, detail='Não foi possível detectar nenhum texto na imagem.')
+
+    txt_corrigido = corrigir_texto(txt_extraido)
+
     # Criação do doc
     doc = Document()
-    doc.add_paragraph(txt_extraido)
+    doc.add_paragraph(txt_corrigido)
 
     output = BytesIO()
     doc.save(output)
@@ -56,10 +61,15 @@ async def img_to_txt(arquivo: UploadFile = File(...)) -> StreamingResponse:
         img = Image.open(BytesIO(file_content))
         txt_extraido = pytesseract.image_to_string(img, lang='por')
 
+    if not txt_extraido:
+        raise HTTPException(status_code=404, detail='Não foi possível detectar nenhum texto na imagem.')
+
+    txt_corrigido = corrigir_texto(txt_extraido)
+
     # Criação do txt
     nome_doc = Path(arquivo.filename).stem
 
-    output = StringIO(txt_extraido)
+    output = StringIO(txt_corrigido)
 
     return StreamingResponse(
         output,
