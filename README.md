@@ -5,6 +5,7 @@ API para extração de texto e tabelas a partir de imagens
 - Extrair texto de uma imagem e exportar para docx
 - Extrair texto de uma imagem e exportar para txt
 - Extrair tabelas de uma imagem e exportar para csv
+- Pós-processamento do texto encontrado utilizando LLMs
 - Suporte para imagens do tipo: png, jpg, tiff e PDF com imagens.
 
 
@@ -37,9 +38,18 @@ npm install
 npm run dev
 ```
 
-Para rodar o backend, use:
+Para configurar o backend:
+
+`cd backend`
+
+Será necessário a criação de um arquivo .env com a seguinte variável:
+```dotenv
+OPENAI_KEY=INSERIR_CHAVE_OPENAI
 ```
-cd backend
+
+
+Por fim, para rodar o backend:
+```
 uvicorn main:app
 ```
 
@@ -50,3 +60,4 @@ uvicorn main:app
 - FastAPI
 - Tesseract
 - pymupdf
+- OpenAI
