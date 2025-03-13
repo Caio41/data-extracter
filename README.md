@@ -13,6 +13,7 @@ As dependências do projeto são gerenciadas pela ferramenta poetry, que pode se
 
 Para instalar as dependências, use:
 ```sh
+cd /backend
 # Instala dependências
 poetry install
 
@@ -23,9 +24,15 @@ poetry shell
 Além disso, também é necessário instalar as ferramentas [Tesseract](https://tesseract-ocr.github.io/tessdoc/Downloads) e [GhostScript](https://ghostscript.com/releases/gsdnld.html)
 
 ## Uso
-Para rodar o frontend, use:
+Para configurar o front-end:
+
+`cd frontend/data-extracter`
+
+Duplique o arquivo `.env.example` e renomeie a cópia para `.env.local`
+Na variável de ambiente `NEXT_PUBLIC_BACKEND_URL`, dentro do arquivo, deve ser inserida a URL do backend. O padrão é manter o valor que já está.
+
+Em seguida, para rodar o front:
 ```
-cd frontend/data-extracter
 npm install
 npm run dev
 ```
