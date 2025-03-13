@@ -27,7 +27,7 @@ async def img_to_doc(arquivo: UploadFile = File(...)) -> StreamingResponse:
 
 
     if not txt_extraido:
-        raise HTTPException(status_code=404, detail='Não foi possível detectar nenhum texto na imagem.')
+        raise HTTPException(status_code=400, detail='Não foi possível detectar nenhum texto na imagem.')
 
     txt_corrigido = corrigir_texto(txt_extraido)
 
@@ -62,7 +62,7 @@ async def img_to_txt(arquivo: UploadFile = File(...)) -> StreamingResponse:
         txt_extraido = pytesseract.image_to_string(img, lang='por')
 
     if not txt_extraido:
-        raise HTTPException(status_code=404, detail='Não foi possível detectar nenhum texto na imagem.')
+        raise HTTPException(status_code=400, detail='Não foi possível detectar nenhum texto na imagem.')
 
     txt_corrigido = corrigir_texto(txt_extraido)
 
