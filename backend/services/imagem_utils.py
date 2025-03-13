@@ -38,7 +38,7 @@ def filtra_bordas_retangulares(bordas, imagem):
             bordas_retangulares.append(aproximado)
 
     imagem_com_retangulos = imagem.copy()
-    cv2.drawContours(imagem_com_retangulos, bordas_retangulares, -1, (0, 255, 0), 3) # desenha em verde as bordas na imagem originsl
+    cv2.drawContours(imagem_com_retangulos, bordas_retangulares, -1, (0, 255, 0), 3) # desenha em verde as bordas na imagem original
     return bordas_retangulares, imagem_com_retangulos
 
 def get_maior_borda(bordas_retangulares, imagem): # Encontra maior borda da imagem

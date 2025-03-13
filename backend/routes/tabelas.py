@@ -11,7 +11,7 @@ async def tesseract_extrair_tabela(arquivo: UploadFile = File(...)) -> Streaming
     """Extrai tabela da imagem utilizando tesseract"""
     file_content = await arquivo.read()  
     np_array = np.frombuffer(file_content, np.uint8)  # Converte bytes para NumPy array
-    imagem = cv2.imdecode(np_array, cv2.IMREAD_COLOR) # faz o decode da umagem usando cv2
+    imagem = cv2.imdecode(np_array, cv2.IMREAD_COLOR) # faz o decode da imagem usando cv2
     csv = extrair_tabela(imagem)
 
     return StreamingResponse(
